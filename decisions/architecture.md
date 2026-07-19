@@ -1,54 +1,54 @@
 # Décisions d'architecture — Phase 1
 
-## Adressage et VLANs
+## Adressage réseau
 
-pfSense — routeur/firewall central
-  → VLAN 10 — Serveurs — 192.168.10.0/24
-      passerelle : 192.168.10.1 (pfSense)
-      - Windows Server 2022 → 192.168.10.10
-      - Debian → 192.168.10.20
-  
-  → VLAN 20 — Clients — 192.168.20.0/24
-      passerelle : 192.168.20.1 (pfSense)
-      - Windows 11 → 192.168.20.10
+J'ai choisi la plage 192.168.x.x car ce sont des adresses privées
+RFC 1918, non routables sur internet et réservées aux réseaux locaux.
+Le masque /24 offre 254 adresses utilisables, suffisant pour DeltaWay.
 
-Pourquoi 192.168.x.x → adresses privées les plus utilisées (non routable sur
-internet)
-Pourquoi /24 → 254 machines, simple à gérer
-Pourquoi VLANs → segmentation, isolation si incident
-pfSense a plusieurs IP → une par réseau qu'il connecte
+## Segmentation réseau
+
+L'infrastructure est divisée en deux VLANs pour isoler les serveurs
+des postes clients. En cas d'incident sur un poste client, les serveurs
+restent protégés et inaccessibles directement.
 
 ## Convention de nommage
 
-Convention nommage : rôle-os-numéro pour bien identifier la machine (un coup 
-d'oeil dans les logs ou supervision et on sait ce que fait chaque machine)
+Format retenu : rôle-os-numéro (ex: srv-win-01).
+Permet d'identifier immédiatement le rôle d'une machine dans les logs
+ou un outil de supervision sans avoir à chercher.
 
-Routeur/Firewall : fw-pfsense-01
-Windows Server : srv-win-01
-Debian Server : srv-deb-01
-Windows client : pc-win-01
+## Plan d'adressage
 
-## Convention IPs/DHCP
+| Machine | IP | Rôle |
+|---------|-----|------|
+| fw-pfsense-01 | 192.168.10.1 / 192.168.20.1 | Routeur/Firewall |
+| srv-win-01 | 192.168.10.10 | Windows Server 2022 — AD |
+| srv-deb-01 | 192.168.10.20 | Debian 13 — Services |
+| pc-win-01 | DHCP 192.168.20.100-254 | Poste client Windows 11 |
 
-On commence à 192.168.10.10 pour le vlan serveurs car on garde les IPs en dessous
-pour d'autres équipements réseaux et infra si besoin (192.168.10.2-192.168.10.9).
-Ensuite on garde 10 IPs (192.168.10.10-.19) pour les serveurs Windows puis 10 ips 
-(192.168.10.20-.29) pour les serveurs Debian puis 10 IPs (.30-.39) pour les serveurs 
-applicatifs (serveur qui héberge seulement une ou des applications métiers =/= serveurs 
-infra qui sont indispensables pour que le réseau fonctionne). 
+## DHCP
 
-Pour les clients ce sera en dynamique dhcp (pool .100-.254). 
-On garde .1 pour le pfsense puis .2-.9 pour tout autre équipement réseau
-On garde .10-.99 pour des IPs fixes ou réservations dhcp si besoin (imprimantes, caméras, 
-téléphones VOIP etc). Si on a besoin de plus d'adresses on peut réduire le pool dhcp.
-On met les clients en dhcp en entreprise il peut y avoir 200 machines donc on ne va pas s'amuser 
-à mettre des IPs fixes sur 200 machines (erreurs, maintenance, trop long). Un serveur doit être 
-trouvable à chaque fois donc IP fixe =/= des clients qui n'ont pas besoin d'être trouvé par leur IP. 
-Libérer les anciennes IPs aussi et en attribuer de nouvelles.
+Les postes clients obtiennent leur IP dynamiquement via DHCP —
+en entreprise gérer des IPs fixes sur des centaines de postes
+serait une source d'erreurs et de maintenance inutile.
 
-Pour commencer on va mettre le dhcp sur le pfsense qui a un dhcp intégré et ce sera la première vm de 
-créée ce qui permettra au client d'avoir tout de suite une IP mais plus tard on mettra le dhcp sur le 
-Windows Server lorsqu'on créera un AD pour profiter de l'intégration AD/DNS.
+Le DHCP est provisoirement sur pfSense car c'est la première VM
+déployée. Il sera migré sur Windows Server une fois l'AD en place
+pour profiter de l'intégration AD/DNS.
 
+## Convention d'adressage
 
+Pour chaque réseau :
+- `.1` → pfSense (passerelle)
+- `.2` à `.9` → réservés équipements réseau
+- `.10` à `.99` → IPs fixes et réservations DHCP (imprimantes, caméras, téléphones VoIP)
+- `.100` à `.254` → pool DHCP postes clients
 
+Sur le VLAN serveurs on regroupe par type :
+- `.10` à `.19` → serveurs Windows
+- `.20` à `.29` → serveurs Debian
+- `.30` à `.39` → serveurs applicatifs
+
+Cette convention permet d'identifier le rôle d'une machine
+rien qu'à son adresse IP.
