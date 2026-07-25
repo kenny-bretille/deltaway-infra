@@ -45,6 +45,8 @@ par convention — d'où le conflit potentiel avec un domaine AD en
 
 ## Configuration réalisée
 
+![Dashboard pfSense](../assets/pfsense-dashboard.png)
+
 ### Paramètres généraux
 - Hostname : `fw-pfsense-01`
 - Domaine : `deltaway.lan`
@@ -52,17 +54,24 @@ par convention — d'où le conflit potentiel avec un domaine AD en
 - Timezone : `Europe/Paris` — essentiel pour la cohérence des logs
   et la corrélation d'incidents entre machines
 
+![General Setup](../assets/pfsense-general-setup.png)
+
 ### DHCP
 Activé uniquement sur l'interface CLIENTS :
 - Pool : `192.168.20.100` à `192.168.20.254`
 - Les serveurs conservent des IPs fixes — ils doivent être joignables
   en permanence à une adresse stable
 
+![DHCP Clients](../assets/pfsense-dhcp-clients.png)
+![DHCP Clients 2](../assets/pfsense-dhcp-clients2.png)
+
 ### Règles firewall
 - CLIENTS → SERVEURS et internet : autorisé
 - Les règles seront durcies en phase 2 pour appliquer le principe
   de moindre privilège — les clients n'accèderont qu'aux services
   dont ils ont besoin
+
+![Règles firewall](../assets/pfsense-firewall-rules.png)
 
 ### Administration
 L'interface web est accessible via `http://192.168.10.254`.
@@ -92,11 +101,6 @@ Ping depuis pfSense vers `9.9.9.9` via l'interface WAN → succès ✅
 
 Le firewall est opérationnel et connecté à internet.
 
-## Screenshots
-
-![Dashboard pfSense](../assets/pfsense-dashboard.png)
-![General Setup](../assets/pfsense-general-setup.png)
-![DHCP Clients](../assets/pfsense-dhcp-clients.png)
-![DHCP Clients 2](../assets/pfsense-dhcp-clients2.png)
-![Règles firewall](../assets/pfsense-firewall-rules.png)
 ![Ping WAN](../assets/pfsense-ping-wan.png)
+
+
