@@ -27,6 +27,40 @@ Le réseau est segmenté en deux VLANs :
 | 10 | 192.168.10.0/24 | Serveurs |
 | 20 | 192.168.20.0/24 | Postes clients |
 
+```mermaid
+graph TD
+    Internet([🌐 Internet])
+    
+    Internet -->|WAN - NAT| PF
+
+    PF["🔥 fw-pfsense-01
+    pfSense CE
+    WAN: 192.168.13.x
+    LAN: 192.168.10.254
+    CLIENTS: 192.168.20.1"]
+
+    subgraph VLAN10["VLAN 10 — Serveurs (192.168.10.0/24)"]
+        WIN["🖥️ srv-win-01
+        Windows Server 2022
+        192.168.10.10
+        AD DS · DNS · DHCP"]
+        
+        DEB["🖥️ srv-deb-01
+        Debian 13
+        192.168.10.20
+        Services applicatifs"]
+    end
+
+    subgraph VLAN20["VLAN 20 — Clients (192.168.20.0/24)"]
+        PC["💻 pc-win-01
+        Windows 11
+        DHCP: 192.168.20.100-254"]
+    end
+
+    PF -->|192.168.10.254| VLAN10
+    PF -->|192.168.20.1| VLAN20
+```
+
 ## Pourquoi cette architecture
 
 La segmentation en VLANs répond à un besoin de sécurité — isoler 
