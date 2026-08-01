@@ -27,10 +27,10 @@ Le réseau est segmenté en deux VLANs :
 | 10 | 192.168.10.0/24 | Serveurs |
 | 20 | 192.168.20.0/24 | Postes clients |
 
+
 ```mermaid
 graph TD
     Internet([🌐 Internet])
-    
     Internet -->|WAN - NAT| PF
 
     PF["🔥 fw-pfsense-01
@@ -43,8 +43,8 @@ graph TD
         WIN["🖥️ srv-win-01
         Windows Server 2022
         192.168.10.10
-        AD DS · DNS · DHCP"]
-        
+        AD DS · DNS · DHCP · GPO"]
+
         DEB["🖥️ srv-deb-01
         Debian 13
         192.168.10.20
@@ -53,13 +53,16 @@ graph TD
 
     subgraph VLAN20["VLAN 20 — Clients (192.168.20.0/24)"]
         PC["💻 pc-win-01
-        Windows 11
-        DHCP: 192.168.20.100-254"]
+        Windows 11 Enterprise
+        DHCP: 192.168.20.x
+        Domaine: deltaway.lan"]
     end
 
     PF -->|192.168.10.254| VLAN10
-    PF -->|192.168.20.1| VLAN20
+    PF -->|192.168.20.1 + DHCP Relay| VLAN20
+    WIN -->|Authentification AD + GPO| PC
 ```
+
 
 ## Pourquoi cette architecture
 
