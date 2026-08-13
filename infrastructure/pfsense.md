@@ -104,3 +104,69 @@ Le firewall est opérationnel et connecté à internet.
 ![Ping WAN](../assets/pfsense-ping-wan.png)
 
 
+## Mise à jour — Correction IP interfaces SERVEURS et CLIENTS
+
+**Date :** Juin 2026
+
+L'interface SERVEURS de pfSense était temporairement configurée en
+`192.168.10.254` suite à un conflit d'adresse avec l'hôte Ubuntu.
+Maintenant que le poste client Windows 11 est installé et fonctionnel,
+je remets l'adressage en ordre pour respecter la convention définie
+dès la conception.
+
+**Le problème**
+
+VMware attribue automatiquement l'adresse `.1` de chaque subnet à
+l'hôte Ubuntu sur ses interfaces virtuelles vmnet. Mon Ubuntu avait
+donc `192.168.10.1` sur vmnet2 et `192.168.20.1` sur vmnet3 — en
+conflit direct avec les passerelles pfSense.
+
+**La solution envisagée initialement**
+
+Désactiver la carte vmnet2 de l'hôte Ubuntu pour libérer le `.1`.
+Solution fonctionnelle mais pas propre car je souhaite quand même
+continuer d'administrer mon serveur debian avec mon hôte ubuntu.
+
+**La solution retenue — Netplan**
+
+En cherchant une solution plus propre j'ai découvert **Netplan** —
+l'outil de configuration réseau moderne sur Ubuntu, que je ne
+connaissais pas. L'équivalent du `/etc/network/interfaces` sur Debian
+mais en format YAML.
+
+J'ai créé un fichier de configuration dédié aux interfaces VMware :
+`/etc/netplan/99-vmnet.yaml`
+
+```yaml
+network:
+  version: 2
+  ethernets:
+    vmnet2:
+      addresses:
+        - 192.168.10.253/24
+    vmnet3:
+      addresses:
+        - 192.168.20.253/24
+```
+
+Les deux interfaces vmnet sont maintenant fixées en `.253` de façon
+permanente — au redémarrage Ubuntu applique automatiquement cette
+configuration.
+
+**Actions effectuées**
+
+- vmnet2 → `192.168.10.253` (libère le `.1` pour pfSense)
+- vmnet3 → `192.168.20.253` (évite un futur conflit côté VLAN clients)
+- Interface SERVEURS pfSense → remise en `192.168.10.1` ✅
+- Passerelle srv-win-01 → mise à jour en `192.168.10.1`
+- Passerelle srv-deb-01 → mise à jour via `/etc/network/interfaces`
+
+**Convention d'adressage maintenant respectée ✅**
+
+| Interface | IP |
+|-----------|-----|
+| pfSense SERVEURS | 192.168.10.1 |
+| pfSense CLIENTS | 192.168.20.1 |
+| srv-win-01 | 192.168.10.10 |
+| srv-deb-01 | 192.168.10.20 |
+| pc-win-01 | DHCP 192.168.20.100-254 |

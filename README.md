@@ -36,7 +36,7 @@ graph TD
     PF["🔥 fw-pfsense-01
     pfSense CE
     WAN: 192.168.13.x
-    LAN: 192.168.10.254
+    LAN: 192.168.10.1
     CLIENTS: 192.168.20.1"]
 
     subgraph VLAN10["VLAN 10 — Serveurs (192.168.10.0/24)"]
@@ -58,7 +58,7 @@ graph TD
         Domaine: deltaway.lan"]
     end
 
-    PF -->|192.168.10.254| VLAN10
+    PF -->|192.168.10.1| VLAN10
     PF -->|192.168.20.1 + DHCP Relay| VLAN20
     WIN -->|Authentification AD + GPO| PC
 ```
