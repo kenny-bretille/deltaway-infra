@@ -170,3 +170,16 @@ configuration.
 | srv-win-01 | 192.168.10.10 |
 | srv-deb-01 | 192.168.10.20 |
 | pc-win-01 | DHCP 192.168.20.100-254 |
+
+## Adressage final — Résolution définitive
+
+Suite aux conflits d'adresse répétés avec VMware Workstation,
+les passerelles pfSense sont définitivement fixées en `.254`.
+Le détail complet de cette problématique et de sa résolution
+est documenté dans `decisions/architecture.md`.
+
+| Interface | IP finale |
+|-----------|-----------|
+| WAN | DHCP VMware NAT |
+| SERVEURS | 192.168.10.254 |
+| CLIENTS | 192.168.20.254 |
