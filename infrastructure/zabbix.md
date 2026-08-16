@@ -184,6 +184,12 @@ Activation SNMP sur pfSense : **Services** → **SNMP**
 Ajout dans Zabbix avec le template `pfSense by SNMP` et une interface
 SNMP v2 sur `192.168.10.254:161`.
 
+![SNMP pfSense](../assets/zabbix-snmp-pfsense.png)
+![Dashboard Zabbix hosts](../assets/zabbix-dashboard-hosts.png)
+![Latest data srv-win-01](../assets/zabbix-latest-data-win.png)
+![Latest data srv-deb-01](../assets/zabbix-latest-data-deb.png)
+
+
 ## Incident — srv-deb-01 en rouge
 
 ### Symptôme
@@ -217,9 +223,4 @@ Server=127.0.0.1,192.168.10.20
 sudo systemctl restart zabbix-agent
 ```
 
-## Screenshots
 
-![Dashboard Zabbix hosts](../assets/zabbix-dashboard-hosts.png)
-![Latest data srv-win-01](../assets/zabbix-latest-data-win.png)
-![Latest data srv-deb-01](../assets/zabbix-latest-data-deb.png)
-![SNMP pfSense](../assets/zabbix-snmp-pfsense.png)
