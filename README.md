@@ -36,8 +36,8 @@ graph TD
     PF["🔥 fw-pfsense-01
     pfSense CE
     WAN: 192.168.13.x
-    LAN: 192.168.10.1
-    CLIENTS: 192.168.20.1"]
+    LAN: 192.168.10.254
+    CLIENTS: 192.168.20.254"]
 
     subgraph VLAN10["VLAN 10 — Serveurs (192.168.10.0/24)"]
         WIN["🖥️ srv-win-01
@@ -48,7 +48,7 @@ graph TD
         DEB["🖥️ srv-deb-01
         Debian 13
         192.168.10.20
-        Services applicatifs"]
+        Zabbix · Apache · MariaDB"]
     end
 
     subgraph VLAN20["VLAN 20 — Clients (192.168.20.0/24)"]
@@ -58,9 +58,18 @@ graph TD
         Domaine: deltaway.lan"]
     end
 
-    PF -->|192.168.10.1| VLAN10
-    PF -->|192.168.20.1 + DHCP Relay| VLAN20
+    PF -->|192.168.10.254| VLAN10
+    PF -->|192.168.20.254 + DHCP Relay| VLAN20
     WIN -->|Authentification AD + GPO| PC
+
+    subgraph SUPERVISION["Supervision Zabbix"]
+        ZBX["📊 Zabbix 7.0 LTS
+        sur srv-deb-01"]
+    end
+
+    ZBX -->|Agent| WIN
+    ZBX -->|Agent| DEB
+    ZBX -->|SNMP| PF
 ```
 
 
@@ -75,6 +84,9 @@ fonctionnalités d'un équipement pro sans coût de licence,
 et sa logique est transposable à des solutions comme Stormshield 
 en environnement professionnel.
 
+Supervision avec Zabbix qui est open-source et gratuit et qui me permet
+de découvrir la supervision simplement.
+
 ## Stack technique
 
 - **Hyperviseur** : VMware Workstation Pro
@@ -83,3 +95,4 @@ en environnement professionnel.
 - **Serveur Windows** : Windows Server 2022
 - **Serveur Linux** : Debian 13
 - **Client** : Windows 11
+- **Supervision** Zabbix
